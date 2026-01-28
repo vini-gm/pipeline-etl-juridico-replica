@@ -17,8 +17,6 @@ print(f"-> Corte Simulada: {len(LISTA_RELATORES)} Relatores")
 
 def gerar_valor_sujo():
     """
-    Simula o erro comum de sistemas jurídicos onde o histórico de valores
-    vem concatenado com quebra de linha.
     Ex: 'R$ 10.000,00\nR$ 12.500,50'
     """
     val1 = round(random.uniform(1000, 50000), 2)
@@ -81,7 +79,7 @@ def gerar_processo():
             'CONCLUÍDO - SENTENÇA', 'CONCLUÍDO - ACÓRDÃO',
             'PENDENTE DE ANÁLISE', 'AGUARDANDO PRAZO', 'TRIAGEM'
         ]),
-        "Código Matéria SAJ": f"1.{random.randint(1, 5)}.{random.randint(1, 9)}|2.{random.randint(1, 5)}.{random.randint(1, 9)}" if random.random() > 0.7 else f"1.{random.randint(1, 5)}.{random.randint(1, 9)}"
+        "Código Matéria": f"1.{random.randint(1, 5)}.{random.randint(1, 9)}|2.{random.randint(1, 5)}.{random.randint(1, 9)}" if random.random() > 0.7 else f"1.{random.randint(1, 5)}.{random.randint(1, 9)}"
     }
 
 # Gera a lista de dicionários

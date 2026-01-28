@@ -23,7 +23,7 @@ MAPA_ORGAOS = {
 
 class RelatorioJuridico:
     """
-    Classe responsável pelo pipeline de ETL dos processos do Núcleo de Inteligência de Dados.
+    Classe responsável pelo pipeline de ETL dos processos de uma equipe.
     Simula a arquitetura original utilizada na PGFN, adaptada para dados sintéticos.
     """
 
@@ -37,7 +37,6 @@ class RelatorioJuridico:
             PASTA_SAIDA.mkdir()
 
     def carregar_dados(self):
-        """Etapa de Extração (Extraction)"""
         logger.info(f"Carregando dados de: {self.arquivo_entrada}")
 
         if not self.arquivo_entrada.exists():
@@ -87,22 +86,22 @@ class RelatorioJuridico:
         dt_range = pd.date_range(start=datas.min(), end=datas.max(), freq='B')
         self.calend_d_uteis = pd.DataFrame({'Data': dt_range})
 
-    def _gerar_tabela_saj_mae(self):
+    def _gerar_tabela_materia(self):
         """
         Gera tabela dimensional explodida por Matéria.
         Técnica: Explode (Transforma lista em linhas).
         """
-        logger.debug("Gerando tabela dimensional SAJ/MAE...")
+        logger.debug("Gerando tabela dimensional de Matéria...")
         df = self.df_base.copy()
-        if 'Código Matéria SAJ' not in df.columns:
-            df['Código Matéria SAJ'] = '1.2.3|4.5.6'
-        # Transforma sTring "1.2.3|4.5.6" em lista ["1.2.3", "4.5.6"]
-        df['Lista_Materias'] = df['Código Matéria SAJ'].str.split('|')
+        if 'Código Matéria' not in df.columns:
+            df['Código Matéria'] = '1.2.3|4.5.6'
+        # Transforma string "1.2.3|4.5.6" em lista ["1.2.3", "4.5.6"]
+        df['Lista_Materias'] = df['Código Matéria'].str.split('|')
         # Explode: Cria uma linha para cada código de matéria
         df_explode = df.explode('Lista_Materias')
 
         cols = ['Data da Extração', 'Número', 'Órgão Padronizado', 'Lista_Materias']
-        self.resultados['dim_materias_mae'] = df_explode[cols].dropna()
+        self.resultados['dim_materias'] = df_explode[cols].dropna()
 
     def _gerar_tabela_uf(self):
         """
@@ -110,14 +109,11 @@ class RelatorioJuridico:
         Técnica: Melt (Unpivot - Transforma colunas UF1/UF2 em linhas).
         """
         logger.debug("Gerando tabela dimensional de UFs...")
-
-        # Transforma colunas largas em linhas longas
         df_melted = self.df_base.melt(
             id_vars=['Data da Extração', 'Número', 'Valor da causa'],
             value_vars=['UF_1', 'UF_2'],
             value_name='UF_Unificada'
         )
-
         # Remove vazios
         df_final = df_melted[df_melted['UF_Unificada'] != ''].copy()
         self.resultados['dim_regionalizacao_uf'] = df_final
@@ -126,10 +122,8 @@ class RelatorioJuridico:
         """Gera tabela filtrada apenas para Polos Relevantes"""
         logger.debug("Gerando tabela de Polo PGFN...")
         df = self.df_base.copy()
-
         filtro_polo = df['Polo da PFGN'].str.upper().isin(['AUTOR', 'RÉU'])
         df_final = df[filtro_polo][['Data da Extração', 'Número', 'Polo da PFGN']]
-
         self.resultados['dim_polo_pgfn'] = df_final
 
     # ----------------------------------------------
@@ -145,9 +139,7 @@ class RelatorioJuridico:
         # 2. Geração das Tabelas (Fato e Dimensões)
         self._gerar_performance_procurador()
         self._gerar_base_analitica()
-
-        # Chamada dos novos métodos
-        self._gerar_tabela_saj_mae()
+        self._gerar_tabela_materia()
         self._gerar_tabela_uf()
         self._gerar_tabela_polo()
 
@@ -172,7 +164,6 @@ class RelatorioJuridico:
         else:
             self.resultados['performance'] = df_agg
 
-
     def _gerar_base_analitica(self):
         logger.debug("Gerando base analítica final...")
         cols = ['Data da Extração', 'Número', 'Classe', 'Procurador Responsável',
@@ -180,7 +171,6 @@ class RelatorioJuridico:
         self.resultados['base_analitica'] = self.df_base[cols].copy()
 
     def exportar_dados(self):
-        """Etapa de Carga (Load)"""
         logger.info(f"Salvando resultados em {PASTA_SAIDA}...")
 
         for nome, df in self.resultados.items():
@@ -194,12 +184,11 @@ class RelatorioJuridico:
             df.to_csv(caminho, index=False, encoding='utf-8-sig')
             logger.success(f"Arquivo gerado: {caminho.name}")
 
-
 def main():
-    logger.info(">>> INICIANDO PIPELINE PGFN (MOCK) <<<")
+    logger.info(">>> INICIANDO PIPELINE (MOCK) <<<")
     try:
 
-        etl = RelatorioJuridicoNID(ARQUIVO_ENTRADA)
+        etl = RelatorioJuridico(ARQUIVO_ENTRADA)
         # Executa o Pipeline
         etl.carregar_dados()
         etl.processar_relatorios()
