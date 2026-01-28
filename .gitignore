@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+env/
+output_relatorios/
+*.csv
+!dados_brutos_simulados.csv
