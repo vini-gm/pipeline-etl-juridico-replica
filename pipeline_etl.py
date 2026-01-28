@@ -21,7 +21,7 @@ MAPA_ORGAOS = {
     '5S': 'QUINTA SEÇÃO', 'S5': 'QUINTA SEÇÃO', 'QUINTASEÇÃO': 'QUINTA SEÇÃO', '5SEÇÃO': 'QUINTA SEÇÃO'
 }
 
-class RelatorioJuridicoNID:
+class RelatorioJuridico:
     """
     Classe responsável pelo pipeline de ETL dos processos do Núcleo de Inteligência de Dados.
     Simula a arquitetura original utilizada na PGFN, adaptada para dados sintéticos.
