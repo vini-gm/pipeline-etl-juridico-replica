@@ -34,7 +34,7 @@ O pipeline transforma os dados brutos em um modelo otimizado para ferramentas de
 ### 2. Tabelas Dimensionais & Agregadas
 * **`performance.csv`**: Métricas de produtividade por procurador.
     * Aplicação de **Cross Join** entre calendário e lista de procuradores para identificar dias sem produção (0 processos), garantindo fidelidade nos gráficos temporais.
-* **`dim_materias_mae.csv`**: Granularidade por matéria jurídica.
+* **`dim_materias.csv`**: Granularidade por matéria jurídica.
     * Uso de **`explode()`** para transformar listas de códigos (arrays) em linhas individuais.
 * **`dim_regionalizacao_uf.csv`**: Normalização geográfica.
     * Uso de **`melt()` (Unpivot)** para transformar colunas de múltiplos estados (`UF_1`, `UF_2`) em uma estrutura vertical para mapas de calor.
